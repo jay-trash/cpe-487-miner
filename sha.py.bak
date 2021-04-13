@@ -42,14 +42,14 @@ def sha256(m):
     assert len(m) % 64 == 0, len(m)
 
     V = list(H)
-    for i in range(0, len(m), 64):
+    for i in xrange(0, len(m), 64):
         chunk(m[i:i+64], V)
     digest = struct.pack(">IIIIIIII", *V)
     return digest
 
 def chunk(m, V):
     assert len(m) == 64, len(m)
-    w = [struct.unpack(">I", m[i:i+4])[0] for i in range(0, 64, 4)]
+    w = [struct.unpack(">I", m[i:i+4])[0] for i in xrange(0, 64, 4)]
     # print w
     assert len(w) == 16
     # print hex(w[0])
@@ -60,7 +60,7 @@ def chunk(m, V):
     def rightshift(x, n):
         return x >> n
 
-    for i in range(16, 64):
+    for i in xrange(16, 64):
         s0 = rightrotate(w[i-15], 7) ^ rightrotate(w[i-15], 18) ^ rightshift(w[i-15], 3)
         s1 = rightrotate(w[i-2], 17) ^ rightrotate(w[i-2], 19) ^ rightshift(w[i-2], 10)
         t = (w[i-16] + s0 + w[i-7] + s1) & 0xffffffff
@@ -70,7 +70,7 @@ def chunk(m, V):
 
 
     a,b,c,d,e,f,g,h = V
-    for i in range(0, 64):
+    for i in xrange(0, 64):
         s1 = rightrotate(e, 6) ^ rightrotate(e, 11) ^ rightrotate(e, 25)
         ch = (e & f) ^ ((~e) & g)
         temp1 = (h + s1 + ch + k[i] + w[i]) & 0xffffffff
@@ -88,8 +88,8 @@ def chunk(m, V):
         a = (temp1 + temp2) & 0xffffffff
 
         if 0:
-            print("%08x %08x %08x %08x %08x %08x %08x %08x" % (a, b, c, d, e, f, g, h), end=' ')
-            print("| %08x %08x %08x %08x %08x %08x %08x %08x" % (s1, ch, temp1, s0, maj, temp2, k[i], w[i]))
+            print "%08x %08x %08x %08x %08x %08x %08x %08x" % (a, b, c, d, e, f, g, h),
+            print "| %08x %08x %08x %08x %08x %08x %08x %08x" % (s1, ch, temp1, s0, maj, temp2, k[i], w[i])
 
     V[0] = (V[0] + a) & 0xffffffff
     V[1] = (V[1] + b) & 0xffffffff
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     _test("abc")
     _test("abc")
     _test("abc" * 30)
-    print(sha256("abc")[::-1].encode("hex"))
+    print sha256("abc")[::-1].encode("hex")
 
 
 # for i in xrange(64):

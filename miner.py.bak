@@ -15,7 +15,7 @@ import traceback
 TEST = 0
 THRESH = 1
 WORKER_NAME = "kmod.kmod1"
-WORKER_PW = ""
+WORKER_PW = os.environ["WORKER_PW"]
 
 from util import RecentCache, ser_uint256_be, uint256_from_str
 
@@ -51,7 +51,7 @@ class JobInfo(object):
         preheader_bin = ''.join([preheader_bin[i*4:i*4+4][::-1] for i in range(0,19)])
 
         hash_bin = doublesha(preheader_bin + nonce.decode("hex")[::-1])
-        print(hash_bin.encode("hex"))
+        print hash_bin.encode("hex")
         val = struct.unpack("<I", hash_bin[-4:])[0]
         assert val < THRESH, (val, THRESH)
 
@@ -90,7 +90,7 @@ class StratumClient(object):
             # if d.get('method', None) == "mining.notify" and self.done:
                 # continue
 
-            print(d)
+            print d
 
             if d.get('error', None):
                 raise Exception()
@@ -102,9 +102,9 @@ class StratumClient(object):
                 difficulty = d['params'][0]
 
             elif d.get('method', None) == "mining.notify":
-                print("stopping worker")
+                print "stopping worker"
                 self.w.stop()
-                print("stopped")
+                print "stopped"
 
                 params, clean_jobs = d['params'][:-1], d['params'][:-1]
                 j = JobInfo(extranonce1, *params)
@@ -114,7 +114,7 @@ class StratumClient(object):
                 extranonce2 = struct.pack(">I", extranonce2).encode("hex")
                 if TEST:
                     extranonce2 = "00000001"
-                print("extranonce2 = %s" % extranonce2)
+                print "extranonce2 = %s" % extranonce2
 
                 coinbase = j.coinb1 + extranonce1 + extranonce2 + j.coinb2
                 coinbase_hash_bin = doublesha(binascii.unhexlify(coinbase))
@@ -136,9 +136,9 @@ class StratumClient(object):
                 assert d['id'] < self.mid
 
     def submit(self, job_id, extranonce2, ntime, nonce):
-        print("SUBMITTING")
+        print "SUBMITTING"
         cmd = """{"params": ["%s", "%s", "%s", "%s", "%s"], "id": %d, "method":"mining.submit"}\n""" % (WORKER_NAME, job_id, extranonce2, ntime, nonce, self.mid)
-        print(cmd)
+        print cmd
         j = self.jobs[job_id]
 
         j.verify(extranonce2, ntime, nonce)
