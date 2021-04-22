@@ -20,7 +20,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module fpga(
-		input wire input_clk,
+		input wire clk,
 		input wire [7:0] sw,
 		input wire [4:0] btn,
 		output wire [7:0] led,
@@ -29,10 +29,10 @@ module fpga(
 		output wire RsTx,
 		input wire RsRx
 	);
-
+/*
 	wire clk; // 10MHz clock
 	dcm dcm(.CLK_IN(input_clk), .CLK_OUT(clk)); // 100MHz -> 10MHz DCM
-
+*/
 	assign led = sw;
 	
 	// button synchronizer:
