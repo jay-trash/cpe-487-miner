@@ -66,14 +66,9 @@ class FPGAController(object):
         # assert digest == sha.finish_dsha(_X, Y, nonce)
         return digest
 
-    def actually_dsha(self, block_data, nonce):
-        #data = block_data + nonce
-        #assert len(data) == 64
-        #print data.encode("hex")
+    def actually_dsha_test(self, block_data, nonce):
         data = struct.pack(">IIIIIIII", *[1035495940, 3049640967, 415613342, 2842011426, 3328267282, 3785566386, 1282652657, 896362020][::-1])[::-1]
-        #data = data + block_data
         data += '\xb1i\x9d\xec\xed\x86NP\xaf\xc4*\x1c'
-        #data += str(nonce)
         data += 'Y\x1f\xbb\xb4'
         data += '\x00' * 16
         self.ser.write(data)
@@ -82,6 +77,15 @@ class FPGAController(object):
         digest = self.last_msg[:32]
         return digest;
 
+    def actually_dsha(self, block_data, nonce):
+        data = struct.pack(">IIIIIIII", *[1035495940, 3049640967, 415613342, 2842011426, 3328267282, 3785566386, 1282652657, 896362020][::-1])[::-1]
+        data+= block_data
+        data+= struct.pack("<I", i).encode("hex")
+        data+= '\x00' * 16
+        self.ser.write(data)
+        time.sleep(.1)
+
+        return self.last_msg[:32]
 
     def start_dsha(self, _X, Y):
         X = struct.pack(">IIIIIIII", *_X[::-1])[::-1]
@@ -114,19 +118,8 @@ class FPGAController(object):
 if __name__ == "__main__":
     c = FPGAController()
 
-    X, Y, nonce = ([1035495940, 3049640967, 415613342, 2842011426, 3328267282, 3785566386, 1282652657, 896362020],'\xb1i\x9d\xec\xed\x86NP\xaf\xc4*\x1c', '\x02|\x95\xb2')
+    #X, Y, nonce = ([1035495940, 3049640967, 415613342, 2842011426, 3328267282, 3785566386, 1282652657, 896362020],'\xb1i\x9d\xec\xed\x86NP\xaf\xc4*\x1c', '\x02|\x95\xb2')
 
-    
-    digest = '32e4b6f2825ab10b227532466880f2f658e19d0c2824e069ff3f81b3cc090000'.decode("hex")
-    reported_nonce =  'Y\x1f\xbb\xb4'
-    _i = struct.unpack("<I", reported_nonce)[0]
-    for i in xrange(_i-100, _i+100):
-        d = c.finish_dsha(X, Y, struct.pack("<I", i)).encode("hex")
-        print(d)
-        #if d.endswith("0000"):
-            #raise Exception(d)
-    
-    
     blockRaw = \
         '01000000000000000000000000000000000000000000000000000000000000000000000' \
         '03ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f' \
@@ -136,24 +129,16 @@ if __name__ == "__main__":
         '636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a010000004' \
         '34104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649' \
         'f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000' \
-        
-    #blockData = int(blockRaw,16)
+
     done = False
-    nonce = '0'.encode()
+    nonce = '0'.encode("hex")
     target = '0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
     print(c.actually_dsha(target, nonce))
     while not done:
         temp = c.actually_dsha(blockRaw, nonce)
         print (temp)
-        if temp == target:
+        if temp.encode("hex") == target:
             done = True
             print('Solution found')
         else:
-            nonce = str(int(nonce)+1).decode()
-            #nonce = '0'.decode()
-
-    # print sha.finish_dsha(X, Y, nonce).encode("hex")
-    # print c.finish_dsha(X, Y, nonce).encode("hex")
-    c.start_dsha(X, Y)
-    for nonce in c.winning_nonces_gen(X, Y):
-        print nonce.encode("hex")
+            nonce = str(int(nonce)+1).encode("hex")
