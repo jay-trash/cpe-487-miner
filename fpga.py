@@ -66,7 +66,7 @@ class FPGAController(object):
         # assert digest == sha.finish_dsha(_X, Y, nonce)
         return digest
 
-    def actually_dsha_test(self, block_data, nonce):
+    def actually_dsha_test(self):
         data = struct.pack(">IIIIIIII", *[1035495940, 3049640967, 415613342, 2842011426, 3328267282, 3785566386, 1282652657, 896362020][::-1])[::-1]
         data += '\xb1i\x9d\xec\xed\x86NP\xaf\xc4*\x1c'
         data += 'Y\x1f\xbb\xb4'
@@ -80,7 +80,7 @@ class FPGAController(object):
     def actually_dsha(self, block_data, nonce):
         data = struct.pack(">IIIIIIII", *[1035495940, 3049640967, 415613342, 2842011426, 3328267282, 3785566386, 1282652657, 896362020][::-1])[::-1]
         data+= block_data
-        data+= struct.pack("<I", i).encode("hex")
+        data+= struct.pack("<I", nonce).encode("hex")
         data+= '\x00' * 16
         self.ser.write(data)
         time.sleep(.1)
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         'f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000' \
 
     done = False
-    nonce = '0'.encode("hex")
+    nonce = 0
     target = '0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
     print(c.actually_dsha(target, nonce))
     while not done:
@@ -141,4 +141,4 @@ if __name__ == "__main__":
             done = True
             print('Solution found')
         else:
-            nonce = str(int(nonce)+1).encode("hex")
+            nonce += 1
