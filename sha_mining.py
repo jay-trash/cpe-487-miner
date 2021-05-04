@@ -25,16 +25,16 @@ class CpuWorker(WorkerBase):
 
             first_sha = hashlib.sha256(preheader_bin)
 
-            if sys.maxsize > 2**32:
+            if sys.maxint > 2**32:
                 max_nonce = 2**32
             else:
                 max_nonce = 2**31 - 1
             i = 0
             while i < max_nonce:
                 if i % 100000 == 0:
-                    print(i, "%.1f kh/s" % (i * .001 / (time.time() - start + .001)))
+                    print i, "%.1f kh/s" % (i * .001 / (time.time() - start + .001))
                     if self._quit:
-                        print("QUITTING WORKER")
+                        print "QUITTING WORKER"
                         break
 
                 nonce_bin = struct.pack(">I", i)
@@ -49,17 +49,17 @@ class CpuWorker(WorkerBase):
                 val = struct.unpack("<I", hash_bin[-4:])[0]
                 if val < THRESH:
                     nonce = nonce_bin[::-1].encode("hex")
-                    print(nonce, extranonce2, ntime)
-                    print(hash_bin.encode("hex"))
+                    print nonce, extranonce2, ntime
+                    print hash_bin.encode("hex")
                     hash_int = uint256_from_str(hash_bin)
                     block_hash_hex = "%064x" % hash_int
-                    print(block_hash_hex)
+                    print block_hash_hex
 
 
                     self._cl.submit(job_id, extranonce2, ntime, nonce)
                     break
                 elif val < THRESH*10:
-                    print("almost: %d (<%d)" % (val, THRESH))
+                    print "almost: %d (<%d)" % (val, THRESH)
                 i += 1
                 # elif i == 0:
                     # print hash_bin.encode("hex")

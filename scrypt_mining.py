@@ -17,7 +17,7 @@ class CpuWorker(WorkerBase):
         try:
             start = time.time()
 
-            if sys.maxsize > 2**32:
+            if sys.maxint > 2**32:
                 max_nonce = 2**32
             else:
                 max_nonce = 2**31 - 1
@@ -27,12 +27,12 @@ class CpuWorker(WorkerBase):
             # # THRESH = 1 << difficulty
             # # THRESH /= 4
             # THRESH = 0x00002000
-            print("thresh:", THRESH)
+            print "thresh:", THRESH
 
             hashes_per_thresh = (1 << 32) / THRESH
 
             if TEST:
-                print(preheader_bin.encode("hex"))
+                print preheader_bin.encode("hex")
                 preheader_bin = "01000000f615f7ce3b4fc6b8f61e8f89aedb1d0852507650533a9e3b10b9bbcc30639f279fcaa86746e1ef52d3edb3c4ad8259920d509bd073605c9bf1d59983752a6b06b817bb4ea78e011d012d59d4".decode("hex")[:-4]
 
             while i < max_nonce:
@@ -40,11 +40,11 @@ class CpuWorker(WorkerBase):
                     i = 0x012d59d4
 
                 if self._quit:
-                    print("QUITTING WORKER")
+                    print "QUITTING WORKER"
                     break
                 if i and i % 10000 == 0:
                     hashrate = i * 1.0 / (time.time() - start + .001)
-                    print(i, "%.1f kh/s (%.1fs/share))" % (hashrate * 0.001, hashes_per_thresh / hashrate))
+                    print i, "%.1f kh/s (%.1fs/share))" % (hashrate * 0.001, hashes_per_thresh / hashrate)
 
                 nonce_bin = struct.pack(">I", i)
 
@@ -60,16 +60,16 @@ class CpuWorker(WorkerBase):
                 # print
                 if val < THRESH:
                     nonce = nonce_bin[::-1].encode("hex")
-                    print(nonce, extranonce2, ntime)
-                    print(hash_bin.encode("hex"))
+                    print nonce, extranonce2, ntime
+                    print hash_bin.encode("hex")
                     hash_int = uint256_from_str(hash_bin)
                     block_hash_hex = "%064x" % hash_int
-                    print(block_hash_hex)
+                    print block_hash_hex
 
 
                     self._cl.submit(job_id, extranonce2, ntime, nonce)
                 elif val < THRESH*10:
-                    print("almost: %d (<%d)" % (val, THRESH))
+                    print "almost: %d (<%d)" % (val, THRESH)
                 i += 1
                 # elif i == 0:
                     # print hash_bin.encode("hex")
