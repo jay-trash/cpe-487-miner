@@ -1,1 +1,3 @@
-Something something blockchain
+Bitcoin mining tool built with Python and Verilog designed to run on the Diligent Nexys A7-100T FPGA board. This project was completed for Stevens Institute of Technology as a part of the CPE-487 Digital System Design Course, and more details about the history of the project can be found [here](https://sites.google.com/stevens.edu/cpe487finalproject/weekly-progress).
+
+Special thanks to Kevin Modzelewski who originally built a framework to mine Bitcoin on a Diligent Nexys 3 board in 2013, and who was kind enough to let us access and upgrade his old code. The original repo can be found [here](https://github.com/kmod/bitcoin_mining).
